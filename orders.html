@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Viksit Mart - My Orders</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary: #ff6600;
+  --secondary: #006400;
+  --accent: #2980b9;
+  --light: #f5f5f5;
+  --dark: #333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* Authentication Check */
+.auth-check {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(10px);
+}
+
+.auth-check-container {
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: modalAppear 0.5s ease-out;
+  text-align: center;
+  padding: 40px 30px;
+}
+
+@keyframes modalAppear {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.auth-check-icon {
+  font-size: 3.5rem;
+  color: var(--primary);
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.auth-check h2 {
+  color: var(--dark);
+  margin-bottom: 15px;
+  font-size: 1.6rem;
+}
+
+.auth-check p {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 1rem;
+}
+
+.auth-check-btn {
+  background: linear-gradient(135deg, var(--primary), #ff884d);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 6px 15px rgba(255, 102, 0, 0.3);
+}
+
+.auth-check-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 102, 0, 0.4);
+}
+
+.auth-check-btn:disabled {
+  background: linear-gradient(135deg, #cccccc, #aaaaaa);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.auth-error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 15px;
+  padding: 10px;
+  background: #fde8e8;
+  border-radius: 8px;
+  display: none;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  display: none;
+}
+
+.header h1 {
+  color: white;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.header p {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.tab-btn i {
+  font-size: 1rem;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 102, 0, 0.3);
+}
+
+.tab-btn:hover:not(.active) {
+  background: #f5f5f5;
+}
+
+/* Container */
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: rgba(255,255,255,0.98);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  display: none;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.track-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.track-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.track-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15);
+}
+
+.track-btn {
+  background: linear-gradient(135deg, var(--primary), #ff884d);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.track-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.3);
+}
+
+/* Orders List */
+.orders-list {
+  max-height: 500px;
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+.order {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  transition: transform 0.3s;
+}
+
+.order:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.order-code {
+  font-weight: bold;
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.order-status {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.pending { background: #fff3cd; color: #856404; }
+.green { background: #d4edda; color: #155724; }
+.red { background: #f8d7da; color: #721c24; }
+.orange { background: #ffeaa7; color: #e17055; }
+.blue { background: #d1ecf1; color: #0c5460; }
+
+.order-details {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 0.85rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+}
+
+.detail-row i {
+  width: 16px;
+  color: var(--primary);
+}
+
+.order-id-display {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border: 2px dashed #ffc107;
+  text-align: center;
+}
+
+.order-id-display h4 {
+  color: #856404;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.order-id {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #e74c3c;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 2px solid #e74c3c;
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.order-id-note {
+  color: #856404;
+  font-size: 0.75rem;
+  margin-top: 8px;
+}
+
+.products-list {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border-left: 3px solid var(--primary);
+}
+
+.products-list h4 {
+  color: var(--primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.product-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px dashed #ddd;
+}
+
+.product-item:last-child {
+  border-bottom: none;
+}
+
+.product-name {
+  flex: 1;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.product-qty {
+  background: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.product-total {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.transaction-id {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 8px 0;
+  border-left: 3px solid var(--accent);
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.transaction-id i {
+  color: var(--accent);
+}
+
+.delay-alert {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin: 12px 0;
+  animation: pulseAlert 2s infinite;
+}
+
+@keyframes pulseAlert {
+  0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 193, 7, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+.delay-alert-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.delay-alert-header i {
+  color: #e17055;
+  font-size: 1.2rem;
+}
+
+.delay-alert-header span {
+  font-weight: bold;
+  color: #856404;
+}
+
+.delay-alert-body {
+  color: #856404;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.delay-estimate {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-weight: bold;
+  display: inline-block;
+  border-left: 3px solid var(--primary);
+}
+
+.compact-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin: 20px 0;
+  padding: 0 10px;
+}
+
+.compact-timeline::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #e0e0e0;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.timeline-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.timeline-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  border: 2px solid #b0b0b0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: white;
+  margin-bottom: 6px;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.timeline-step.completed .timeline-icon {
+  background: #2ecc71;
+  border-color: #27ae60;
+  box-shadow: 0 3px 10px rgba(46, 204, 113, 0.3);
+}
+
+.timeline-step.current .timeline-icon {
+  background: #27ae60;
+  border-color: #1e8449;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.step-time {
+  font-size: 0.7rem;
+  color: #888;
+  font-style: italic;
+}
+
+.order-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.action-btn {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.return-btn {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: white;
+}
+
+.refund-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.return-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin: 8px 0;
+  font-size: 0.8rem;
+}
+
+.return-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.return-section {
+  background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border: 2px solid #ffc107;
+}
+
+.return-section h4 {
+  color: #856404;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.return-info {
+  background: rgba(255,255,255,0.7);
+  padding: 10px;
+  border-radius: 6px;
+  margin: 8px 0;
+  font-size: 0.8rem;
+  color: #856404;
+}
+
+.refund-status {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  padding: 10px;
+  border-radius: 6px;
+  margin: 8px 0;
+  border-left: 3px solid #28a745;
+  font-size: 0.8rem;
+  color: #155724;
+}
+
+.no-orders, .loading {
+  text-align: center;
+  padding: 30px 20px;
+  color: #666;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #ddd;
+}
+
+.no-orders i, .loading i {
+  font-size: 2.5rem;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.no-orders h3 {
+  color: #555;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.order-id-examples {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border-left: 3px solid var(--accent);
+}
+
+.order-id-examples h4 {
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-id-examples p {
+  font-size: 0.8rem;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.order-id-examples .example {
+  font-family: 'Courier New', monospace;
+  background: white;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #b0b0b0;
+  font-size: 0.75rem;
+  color: var(--primary);
+  margin: 3px 0;
+}
+
+/* Customer Info Box */
+.customer-info-box {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--accent);
+}
+
+.customer-info-box h3 {
+  color: var(--accent);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+}
+
+.customer-details {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.customer-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-detail i {
+  color: var(--primary);
+  width: 16px;
+}
+
+.order-count-badge {
+  background: var(--primary);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+/* Generate ID Section */
+.generate-id-section {
+  background: linear-gradient(135deg, #e8f5e8, #d4edda);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 2px dashed #28a745;
+  text-align: center;
+}
+
+.generate-id-section h3 {
+  color: #155724;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.generate-id-btn {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.generate-id-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3);
+}
+
+.generated-id-display {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+  border: 2px solid #28a745;
+  text-align: center;
+  display: none;
+}
+
+.generated-id-display h4 {
+  color: #155724;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.generated-id {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e74c3c;
+  background: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 2px solid #e74c3c;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  margin: 10px 0;
+}
+
+.generated-id-info {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+
+.copy-btn {
+  background: linear-gradient(135deg, var(--primary), #ff884d);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.copy-btn:hover {
+  background: linear-gradient(135deg, #ff5500, #ff7733);
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+    margin: 5px;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .tab-btn {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+  
+  .track-form {
+    flex-direction: column;
+  }
+  
+  .order {
+    padding: 15px;
+  }
+  
+  .timeline-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .step-label {
+    font-size: 0.7rem;
+  }
+  
+  .step-time {
+    font-size: 0.65rem;
+  }
+  
+  .order-id {
+    font-size: 1.1rem;
+    padding: 6px 10px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Authentication Check -->
+<div class="auth-check" id="authCheck">
+  <div class="auth-check-container">
+    <div class="auth-check-icon">
+      <i class="fas fa-user-shield"></i>
+    </div>
+    <h2>Authentication Required</h2>
+    <p>Please check if you are signed in to your account. This page requires authentication.</p>
+    <p style="color: var(--primary); font-weight: bold; margin: 15px 0;">
+      <i class="fas fa-exclamation-circle"></i> 
+      You must be signed in to track orders
+    </p>
+    <button class="auth-check-btn" id="authCheckBtn" onclick="checkAuthStatus()">
+      <i class="fas fa-sign-in-alt"></i> Check Authentication Status
+    </button>
+    <div class="auth-error" id="authError"></div>
+    <p style="margin-top: 20px; font-size: 0.85rem; color: #666;">
+      <i class="fas fa-info-circle"></i> 
+      If you're not signed in, please go to the main page and sign in first
+    </p>
+  </div>
+</div>
+
+<div class="header" id="mainHeader">
+  <h1><i class="fas fa-clipboard-list"></i> My Orders</h1>
+  <p>Track and manage all your orders in one place</p>
+</div>
+
+<div class="container" id="mainContainer">
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button class="tab-btn active" onclick="switchTab('allOrders')">
+      <i class="fas fa-list"></i> All Orders
+    </button>
+    <button class="tab-btn" onclick="switchTab('trackOrder')">
+      <i class="fas fa-search"></i> Track by ID
+    </button>
+    <button class="tab-btn" onclick="switchTab('generateId')">
+      <i class="fas fa-qrcode"></i> Generate ID
+    </button>
+  </div>
+
+  <!-- Tab Contents -->
+  <div class="tab-content active" id="allOrdersTab">
+    <div class="customer-info-box" id="customerInfoBox">
+      <h3><i class="fas fa-user-circle"></i> Customer Information</h3>
+      <div class="customer-details" id="customerDetails">
+        <div class="customer-detail">
+          <i class="fas fa-user"></i>
+          <span>Loading...</span>
+        </div>
+      </div>
+    </div>
+    
+    <div id="myOrdersList" class="orders-list"></div>
+  </div>
+
+  <div class="tab-content" id="trackOrderTab">
+    <div class="track-form">
+      <input type="text" id="orderIdInput" class="track-input" placeholder="🔍 Enter Order ID (e.g., VM-ABC123)" required>
+      <button class="track-btn" onclick="trackOrderById()">
+        <i class="fas fa-search"></i> Track
+      </button>
+    </div>
+
+    <div class="order-id-examples">
+      <h4><i class="fas fa-info-circle"></i> Where to find your Order ID?</h4>
+      <p>Your Order ID was shown when you placed the order. Examples:</p>
+      <div class="example">VM-${new Date().getFullYear().toString().slice(-2)}${(new Date().getMonth()+1).toString().padStart(2,'0')}-ABC123</div>
+      <div class="example">VM-${new Date().getFullYear().toString().slice(-2)}${(new Date().getMonth()+1).toString().padStart(2,'0')}-XYZ789</div>
+      <p style="margin-top: 8px;"><i class="fas fa-exclamation-triangle"></i> Order ID is case sensitive</p>
+    </div>
+
+    <div id="singleOrderResult"></div>
+  </div>
+
+  <!-- Generate ID Tab -->
+  <div class="tab-content" id="generateIdTab">
+    <div class="generate-id-section">
+      <h3><i class="fas fa-qrcode"></i> Generate Order ID</h3>
+      <p>Generate a unique Order ID for your new order. This ID will be used to track your order.</p>
+      
+      <div style="margin: 15px 0; text-align: left; background: white; padding: 15px; border-radius: 8px;">
+        <h4 style="color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-info-circle"></i> How it works:
+        </h4>
+        <ul style="font-size: 0.85rem; color: #555; padding-left: 20px;">
+          <li>Click "Generate Order ID" to create a unique ID</li>
+          <li>Save this ID for future tracking</li>
+          <li>Share this ID with the seller/admin</li>
+          <li>Use this ID to track your order anytime</li>
+        </ul>
+      </div>
+      
+      <button class="generate-id-btn" onclick="generateOrderId()">
+        <i class="fas fa-bolt"></i> Generate Order ID
+      </button>
+    </div>
+    
+    <div class="generated-id-display" id="generatedIdDisplay">
+      <h4><i class="fas fa-check-circle"></i> Order ID Generated Successfully!</h4>
+      <div class="generated-id" id="generatedIdValue">VM-2412-ABC123</div>
+      <p class="generated-id-info">
+        <i class="fas fa-save"></i> Save this ID for tracking your order
+      </p>
+      <button class="copy-btn" onclick="copyOrderId()">
+        <i class="fas fa-copy"></i> Copy Order ID
+      </button>
+      <button class="copy-btn" style="background: linear-gradient(135deg, #2980b9, #3498db);" onclick="shareOrderId()">
+        <i class="fas fa-share-alt"></i> Share
+      </button>
+      <div style="margin-top: 15px; font-size: 0.75rem; color: #666;">
+        <i class="fas fa-lightbulb"></i> 
+        <strong>Tip:</strong> Take a screenshot or save this ID in your notes
+      </div>
+    </div>
+    
+    <div class="order-id-examples">
+      <h4><i class="fas fa-history"></i> Your Recently Generated IDs</h4>
+      <div id="recentIdsList"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ✅ FIREBASE CONFIGURATION
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { 
+  getAuth, 
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { 
+  getDatabase, 
+  ref, 
+  onValue, 
+  update,
+  set
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBI0c_MOpMBSU9Hq8ftNNYuZBeZjd_cam8",
+  authDomain: "self-devloper.firebaseapp.com",
+  databaseURL: "https://self-devloper-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "self-devloper",
+  storageBucket: "self-devloper.firebasestorage.app",
+  messagingSenderId: "677828342615",
+  appId: "1:677828342615:web:03774122cbbb5f3dc50412",
+  measurementId: "G-RW5ST7RK75"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// DOM Elements
+const authCheck = document.getElementById('authCheck');
+const authCheckBtn = document.getElementById('authCheckBtn');
+const authError = document.getElementById('authError');
+const mainHeader = document.getElementById('mainHeader');
+const mainContainer = document.getElementById('mainContainer');
+const customerInfoBox = document.getElementById('customerInfoBox');
+const customerDetails = document.getElementById('customerDetails');
+const myOrdersList = document.getElementById('myOrdersList');
+const singleOrderResult = document.getElementById('singleOrderResult');
+const generatedIdDisplay = document.getElementById('generatedIdDisplay');
+const generatedIdValue = document.getElementById('generatedIdValue');
+const recentIdsList = document.getElementById('recentIdsList');
+
+// Current user data
+let currentUser = null;
+let myOrders = [];
+
+// Local Storage Keys
+const LOCAL_STORAGE_KEY = 'viksit_mart_orders';
+const GENERATED_IDS_KEY = 'viksit_generated_ids';
+
+// Tab Switching
+window.switchTab = function(tabId) {
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Update tab content
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  document.getElementById(tabId + 'Tab').classList.add('active');
+  
+  // Load data for tab
+  if (tabId === 'allOrders') {
+    loadMyOrders();
+  } else if (tabId === 'generateId') {
+    loadRecentGeneratedIds();
+  } else if (tabId === 'trackOrder') {
+    // Clear single order result
+    singleOrderResult.innerHTML = '';
+  }
+};
+
+// Generate Order ID
+window.generateOrderId = function() {
+  if (!currentUser) {
+    alert("Please sign in to generate Order ID");
+    checkAuthStatus();
+    return;
+  }
+  
+  // Generate unique Order ID
+  const orderId = generateUniqueOrderId();
+  
+  // Display generated ID
+  generatedIdValue.textContent = orderId;
+  generatedIdDisplay.style.display = 'block';
+  
+  // Save to recent IDs
+  saveGeneratedId(orderId);
+  
+  // Scroll to show generated ID
+  generatedIdDisplay.scrollIntoView({ behavior: 'smooth' });
+  
+  // Optionally, create a placeholder order in Firebase
+  createPlaceholderOrder(orderId);
+};
+
+// Generate Unique Order ID
+function generateUniqueOrderId() {
+  // Format: VM-YYMM-RANDOM
+  const now = new Date();
+  const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
+  const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Month with leading zero
+  
+  // Generate random part (3 letters + 3 numbers)
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  
+  let randomPart = '';
+  for (let i = 0; i < 3; i++) {
+    randomPart += letters.charAt(Math.floor(Math.random() * letters.length));
+  }
+  for (let i = 0; i < 3; i++) {
+    randomPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  
+  // Shuffle the random part
+  randomPart = randomPart.split('').sort(() => Math.random() - 0.5).join('');
+  
+  // User initials (first letter of name)
+  const userName = currentUser.name || 'C';
+  const userInitial = userName.charAt(0).toUpperCase();
+  
+  // Final format: VM-YYMM-USERINITIAL-RANDOM
+  return `VM-${year}${month}-${userInitial}${randomPart}`;
+}
+
+// Save generated ID to local storage
+function saveGeneratedId(orderId) {
+  try {
+    const generatedIds = JSON.parse(localStorage.getItem(GENERATED_IDS_KEY)) || [];
+    
+    // Add new ID with timestamp
+    const newIdEntry = {
+      id: orderId,
+      timestamp: new Date().toISOString(),
+      date: new Date().toLocaleDateString('en-IN'),
+      time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    generatedIds.unshift(newIdEntry); // Add to beginning
+    
+    // Keep only last 10 IDs
+    if (generatedIds.length > 10) {
+      generatedIds.pop();
+    }
+    
+    localStorage.setItem(GENERATED_IDS_KEY, JSON.stringify(generatedIds));
+    
+    // Update recent IDs list
+    loadRecentGeneratedIds();
+    
+  } catch (error) {
+    console.error('Error saving generated ID:', error);
+  }
+}
+
+// Load recent generated IDs
+function loadRecentGeneratedIds() {
+  try {
+    const generatedIds = JSON.parse(localStorage.getItem(GENERATED_IDS_KEY)) || [];
+    
+    if (generatedIds.length === 0) {
+      recentIdsList.innerHTML = `
+        <p style="color: #666; font-size: 0.85rem; text-align: center; padding: 10px;">
+          <i class="fas fa-history"></i> No recently generated IDs
+        </p>
+      `;
+      return;
+    }
+    
+    let html = '';
+    generatedIds.forEach((idEntry, index) => {
+      html += `
+        <div class="example" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span>${idEntry.id}</span>
+          <span style="font-size: 0.7rem; color: #666;">
+            ${idEntry.date} ${idEntry.time}
+          </span>
+        </div>
+      `;
+    });
+    
+    recentIdsList.innerHTML = html;
+    
+  } catch (error) {
+    console.error('Error loading generated IDs:', error);
+  }
+}
+
+// Create placeholder order in Firebase
+async function createPlaceholderOrder(orderId) {
+  try {
+    // Generate a unique key for the order
+    const orderRef = ref(db, 'orders/' + generateFirebaseKey());
+    
+    const placeholderOrder = {
+      orderId: orderId,
+      userId: currentUser.uid,
+      name: currentUser.name || 'Customer',
+      email: currentUser.email || '',
+      phone: currentUser.phone || '',
+      status: "Pending",
+      statusTime: {
+        "Pending": new Date().toISOString()
+      },
+      orderDate: new Date().toISOString(),
+      products: ["Order ID Generated - Awaiting Details"],
+      bill: 0,
+      payment: "To be confirmed",
+      deliveryBoy: "Not assigned",
+      shortCode: orderId.slice(-6),
+      adminComment: "Order ID generated by customer. Awaiting order details from admin."
+    };
+    
+    // Save to Firebase
+    await set(orderRef, placeholderOrder);
+    
+    console.log('Placeholder order created in Firebase');
+    
+    // Show success message
+    setTimeout(() => {
+      alert(`✅ Order ID created successfully!\n\nOrder ID: ${orderId}\n\nThis ID has been saved to the system. You can now share it with the seller.`);
+    }, 500);
+    
+  } catch (error) {
+    console.error('Error creating placeholder order:', error);
+    // Still show success message even if Firebase fails
+    setTimeout(() => {
+      alert(`✅ Order ID created successfully!\n\nOrder ID: ${orderId}\n\nNote: Could not save to cloud. Please share this ID with the seller manually.`);
+    }, 500);
+  }
+}
+
+// Generate Firebase key
+function generateFirebaseKey() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let key = '';
+  for (let i = 0; i < 20; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return key;
+}
+
+// Copy Order ID to clipboard
+window.copyOrderId = function() {
+  const orderId = generatedIdValue.textContent;
+  
+  navigator.clipboard.writeText(orderId).then(() => {
+    // Show copied feedback
+    const copyBtn = document.querySelector('.copy-btn');
+    const originalText = copyBtn.innerHTML;
+    copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    copyBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+    
+    setTimeout(() => {
+      copyBtn.innerHTML = originalText;
+      copyBtn.style.background = 'linear-gradient(135deg, var(--primary), #ff884d)';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+    alert('Failed to copy to clipboard. Please copy manually: ' + orderId);
+  });
+};
+
+// Share Order ID
+window.shareOrderId = function() {
+  const orderId = generatedIdValue.textContent;
+  const shareText = `My Viksit Mart Order ID: ${orderId}\n\nUse this ID to track my order on Viksit Mart.`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: 'Viksit Mart Order ID',
+      text: shareText,
+      url: window.location.href
+    }).catch(err => {
+      console.log('Error sharing:', err);
+      copyShareText(shareText);
+    });
+  } else {
+    copyShareText(shareText);
+  }
+};
+
+function copyShareText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Order ID copied to clipboard! You can now share it.');
+  }).catch(err => {
+    alert('Please copy this Order ID manually:\n\n' + text);
+  });
+}
+
+// Check authentication status
+window.checkAuthStatus = function() {
+  authCheckBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+  authCheckBtn.disabled = true;
+  
+  // Check if user is authenticated
+  const user = auth.currentUser;
+  
+  if (user) {
+    console.log('User is authenticated:', user.uid);
+    currentUser = {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName || 'Customer',
+      phone: user.phoneNumber || 'Not provided'
+    };
+    
+    // Success - show main app
+    setTimeout(() => {
+      authCheckBtn.innerHTML = '<i class="fas fa-check"></i> Authenticated!';
+      authCheckBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+      
+      setTimeout(() => {
+        authCheck.style.display = 'none';
+        mainHeader.style.display = 'block';
+        mainContainer.style.display = 'block';
+        
+        // Update customer info
+        updateCustomerInfo();
+        
+        // Load user's orders
+        loadMyOrders();
+      }, 1000);
+    }, 1000);
+    
+  } else {
+    // Not authenticated
+    setTimeout(() => {
+      authCheckBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Check Authentication Status';
+      authCheckBtn.disabled = false;
+      
+      showError(authError, 'You are not signed in. Please go to the main page and sign in first.');
+    }, 1000);
+  }
+};
+
+// Show error message
+function showError(errorElement, message) {
+  errorElement.textContent = message;
+  errorElement.style.display = 'block';
+  setTimeout(() => {
+    errorElement.style.display = 'none';
+  }, 5000);
+}
+
+// Update customer information
+function updateCustomerInfo() {
+  if (!currentUser) return;
+  
+  customerDetails.innerHTML = `
+    <div class="customer-detail">
+      <i class="fas fa-user"></i>
+      <span><strong>Name:</strong> ${currentUser.name}</span>
+    </div>
+    <div class="customer-detail">
+      <i class="fas fa-envelope"></i>
+      <span><strong>Email:</strong> ${currentUser.email}</span>
+    </div>
+    <div class="customer-detail">
+      <i class="fas fa-phone"></i>
+      <span><strong>Phone:</strong> ${currentUser.phone}</span>
+    </div>
+    <div class="customer-detail">
+      <i class="fas fa-shopping-bag"></i>
+      <span><strong>Total Orders:</strong> <span id="totalOrdersCount">0</span></span>
+    </div>
+  `;
+}
+
+// Load user's orders from Firebase and Local Storage
+async function loadMyOrders() {
+  if (!currentUser) return;
+  
+  myOrdersList.innerHTML = `
+    <div class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading your orders...</p>
+    </div>
+  `;
+  
+  try {
+    // Load from Firebase
+    const ordersRef = ref(db, "orders");
+    onValue(ordersRef, snapshot => {
+      const data = snapshot.val() || {};
+      myOrders = [];
+      
+      // Filter orders for current user
+      for(let id in data){
+        const order = data[id];
+        if (order.userId && order.userId === currentUser.uid) {
+          order.firebaseId = id; // Store Firebase ID
+          myOrders.push(order);
+        }
+      }
+      
+      // Save to local storage
+      saveOrdersToLocalStorage(myOrders);
+      
+      // Update order count
+      const totalOrdersCount = document.getElementById('totalOrdersCount');
+      if (totalOrdersCount) {
+        totalOrdersCount.textContent = myOrders.length;
+      }
+      
+      // Display orders
+      displayMyOrders();
+    }, {onlyOnce: true});
+    
+  } catch (error) {
+    console.error("Error loading orders:", error);
+    
+    // Try loading from local storage as fallback
+    loadFromLocalStorage();
+  }
+}
+
+// Save orders to local storage
+function saveOrdersToLocalStorage(orders) {
+  try {
+    const data = {
+      userId: currentUser.uid,
+      orders: orders,
+      lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    console.log('Orders saved to local storage:', orders.length);
+  } catch (error) {
+    console.error('Error saving to local storage:', error);
+  }
+}
+
+// Load orders from local storage
+function loadFromLocalStorage() {
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      if (data.userId === currentUser.uid) {
+        myOrders = data.orders || [];
+        
+        // Update order count
+        const totalOrdersCount = document.getElementById('totalOrdersCount');
+        if (totalOrdersCount) {
+          totalOrdersCount.textContent = myOrders.length;
+        }
+        
+        // Display orders
+        displayMyOrders();
+        
+        console.log('Loaded orders from local storage:', myOrders.length);
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading from local storage:', error);
+  }
+  
+  return false;
+}
+
+// Display user's orders
+function displayMyOrders() {
+  if (myOrders.length === 0) {
+    myOrdersList.innerHTML = `
+      <div class="no-orders">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>No Orders Yet</h3>
+        <p>You haven't placed any orders yet.</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">
+          <i class="fas fa-lightbulb"></i> 
+          Click on "Generate ID" tab to create a new order ID
+        </p>
+        <button class="track-btn" onclick="switchTab('generateId')" style="margin-top: 15px;">
+          <i class="fas fa-qrcode"></i> Generate Order ID
+        </button>
+      </div>
+    `;
+    return;
+  }
+  
+  // Sort orders by date (newest first)
+  myOrders.sort((a, b) => {
+    const dateA = a.orderDate ? new Date(a.orderDate) : new Date(0);
+    const dateB = b.orderDate ? new Date(b.orderDate) : new Date(0);
+    return dateB - dateA;
+  });
+  
+  let ordersHTML = '';
+  
+  myOrders.forEach(order => {
+    const cs = order.status || "Pending";
+    const st = order.statusTime || {};
+    const flow = [
+      {step: "Pending", icon: "⏰"},
+      {step: "Shipped", icon: "📦"},
+      {step: "Out for Delivery", icon: "🚚"},
+      {step: "Delivered", icon: "✅"}
+    ];
+    
+    // Check for delay in processing
+    const delayInfo = checkDelayInProcess(order, cs);
+    const delayAlertHTML = delayInfo ? generateDelayAlert(delayInfo) : '';
+    
+    // Generate products list
+    const productsListHTML = generateProductsList(order);
+    
+    // Create compact timeline
+    let timelineHTML = flow.map((stepObj, i) => {
+      const step = stepObj.step;
+      const stepClass = (cs.includes(step)) ? "current" : (i < flow.findIndex(s => s.step === cs)) ? "completed" : "";
+      const stepTime = st[step] ? formatOrderTime(st[step]) : '';
+      
+      return `<div class="timeline-step ${stepClass}">
+                <div class="timeline-icon">${stepObj.icon}</div>
+                <div class="step-label">${step}</div>
+                <div class="step-time">${stepTime}</div>
+              </div>`;
+    }).join('');
+    
+    // Transaction ID display
+    const transactionHTML = showTransactionID(order);
+    
+    // Return/Refund section
+    const returnRefundHTML = showReturnRefundSection(order, order.firebaseId || '');
+    
+    // Action buttons
+    let actionHTML = "";
+    if(cs === "Pending"){ 
+      actionHTML += `<button class="action-btn cancel-btn" onclick="cancelOrder('${order.firebaseId}')">
+                      <i class="fas fa-times"></i> Cancel
+                    </button>`; 
+    }
+    
+    // Order date
+    const orderDate = order.orderDate ? formatOrderDate(order.orderDate) : 'Not specified';
+    
+    ordersHTML += `
+      <div class="order">
+        <div class="order-header">
+          <div class="order-code">${order.shortCode || 'ORD-' + (order.firebaseId || '').slice(-6)}</div>
+          <div class="order-status ${getStatusClass(cs)}">${cs}</div>
+        </div>
+        
+        <div class="order-id-display">
+          <h4><i class="fas fa-receipt"></i> Order ID</h4>
+          <div class="order-id">${order.orderId || 'Not assigned'}</div>
+          <div style="margin-top: 8px; font-size: 0.8rem; color: #666;">
+            <i class="fas fa-calendar"></i> Placed on: ${orderDate}
+          </div>
+        </div>
+        
+        ${delayAlertHTML}
+        
+        ${productsListHTML}
+        
+        <div class="order-details">
+          <div class="detail-row">
+            <i class="fas fa-user"></i>
+            <span><strong>Name:</strong> ${order.name || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-phone"></i>
+            <span><strong>Phone:</strong> ${order.phone || 'N/A'}</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-credit-card"></i>
+            <span><strong>Payment:</strong> ${order.payment || 'COD'}</span>
+          </div>
+          ${transactionHTML}
+          <div class="detail-row">
+            <i class="fas fa-rupee-sign"></i>
+            <span><strong>Total:</strong> ₹${order.bill || 0}</span>
+          </div>
+          <div class="detail-row">
+            <i class="fas fa-bike"></i>
+            <span><strong>Delivery:</strong> ${order.deliveryBoy || 'Not assigned'}</span>
+          </div>
+        </div>
+        
+        <div class="compact-timeline">
+          ${timelineHTML}
+        </div>
+        
+        ${returnRefundHTML}
+        
+        <div class="order-actions">
+          ${actionHTML}
+          <button class="action-btn" onclick="trackOrderById('${order.orderId}')">
+            <i class="fas fa-eye"></i> View Details
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  
+  myOrdersList.innerHTML = ordersHTML;
+}
+
+// Check if there is delay in order processing
+function checkDelayInProcess(order, cs) {
+  const flow = [
+    "Pending",
+    "Shipped", 
+    "Out for Delivery",
+    "Delivered"
+  ];
+  
+  const currentStepIndex = flow.findIndex(step => cs.includes(step));
+  
+  if (currentStepIndex < 0) return null;
+  
+  // Get time of current step
+  const stepTimeStr = order.statusTime?.[flow[currentStepIndex]];
+  if (!stepTimeStr) return null;
+  
+  const stepTime = new Date(stepTimeStr);
+  const now = new Date();
+  const diffMinutes = (now - stepTime) / (1000 * 60);
+  
+  // If more than 30 minutes at current step, show delay message
+  if (diffMinutes > 30) {
+    const delayHours = Math.floor(diffMinutes / 60);
+    const delayMinutes = Math.floor(diffMinutes % 60);
+    
+    // Check if there's a next step
+    const nextStep = currentStepIndex < flow.length - 1 ? flow[currentStepIndex + 1] : null;
+    const etaMessage = nextStep ? `ETA for ${nextStep}: ${getETA(diffMinutes)}` : '';
+    
+    return {
+      step: flow[currentStepIndex],
+      delayHours,
+      delayMinutes,
+      totalDelayMinutes: Math.floor(diffMinutes),
+      etaMessage,
+      nextStep
+    };
+  }
+  
+  return null;
+}
+
+// Calculate ETA based on delay
+function getETA(delayMinutes) {
+  if (delayMinutes <= 60) {
+    return "within 1 hour";
+  } else if (delayMinutes <= 120) {
+    return "within 2 hours";
+  } else if (delayMinutes <= 240) {
+    return "within 4 hours";
+  } else if (delayMinutes <= 480) {
+    return "within 8 hours";
+  } else {
+    return "within 24 hours";
+  }
+}
+
+// Generate delay alert HTML
+function generateDelayAlert(delayInfo) {
+  const delayMessage = delayInfo.delayHours > 0 
+    ? `Your order has been at "${delayInfo.step}" stage for ${delayInfo.delayHours} hours ${delayInfo.delayMinutes} minutes.`
+    : `Your order has been at "${delayInfo.step}" stage for ${delayInfo.delayMinutes} minutes.`;
+  
+  const etaHtml = delayInfo.etaMessage ? 
+    `<div class="delay-estimate">
+      <i class="fas fa-clock"></i> ${delayInfo.etaMessage}
+    </div>` : '';
+  
+  return `
+    <div class="delay-alert">
+      <div class="delay-alert-header">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Delay in Processing</span>
+      </div>
+      <div class="delay-alert-body">
+        ${delayMessage}
+        <br><br>
+        <i class="fas fa-hands-helping"></i> <strong>Sorry for the delay!</strong> We're working hard to process your order.
+        ${etaHtml}
+      </div>
+    </div>
+  `;
+}
+
+// Generate products list HTML with quantity
+function generateProductsList(order) {
+  if (!order.products || order.products.length === 0) {
+    return `
+      <div class="products-list">
+        <h4><i class="fas fa-box"></i> Ordered Products</h4>
+        <p style="color: #666; font-size: 0.85rem;">No product details available</p>
+      </div>
+    `;
+  }
+  
+  let productsHTML = '';
+  let totalItems = 0;
+  
+  // Create a map to count quantities for each product
+  const productCounts = {};
+  order.products.forEach(productName => {
+    // Clean product name (remove extra spaces)
+    const cleanName = productName.trim();
+    productCounts[cleanName] = (productCounts[cleanName] || 0) + 1;
+    totalItems++;
+  });
+  
+  // Generate product items with quantity
+  Object.entries(productCounts).forEach(([productName, quantity]) => {
+    productsHTML += `
+      <div class="product-item">
+        <div class="product-name">${productName}</div>
+        <div class="product-qty">${quantity} ${quantity > 1 ? 'items' : 'item'}</div>
+      </div>
+    `;
+  });
+  
+  return `
+    <div class="products-list">
+      <h4><i class="fas fa-box"></i> Ordered Products (${totalItems} items)</h4>
+      ${productsHTML}
+      <div class="product-total">
+        <i class="fas fa-shopping-cart"></i> Total: ${totalItems} items
+      </div>
+    </div>
+  `;
+}
+
+// Track order by ID
+window.trackOrderById = async (prefilledId) => {
+  // Check if user is logged in
+  if (!currentUser) {
+    alert("Please sign in to track orders");
+    checkAuthStatus();
+    return;
+  }
+  
+  let orderId = prefilledId || document.getElementById("orderIdInput").value.trim();
+  
+  if(!orderId){ 
+    alert("Please enter your Order ID"); 
+    return; 
+  }
+  
+  // Switch to track order tab if not already
+  if (!prefilledId) {
+    switchTab('trackOrder');
+  }
+  
+  singleOrderResult.innerHTML = `
+    <div class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Searching for your order...</p>
+    </div>
+  `;
+  
+  try {
+    const ordersRef = ref(db, "orders");
+    onValue(ordersRef, snapshot => {
+      const data = snapshot.val() || {};
+      singleOrderResult.innerHTML = "";
+      let found = false;
+      
+      for(let id in data){
+        let savedOrderId = data[id].orderId;
+        if(savedOrderId && savedOrderId.toUpperCase() === orderId.toUpperCase()){
+          found = true;
+          const order = data[id];
+          
+          // ✅ IMPORTANT: Check if order belongs to current user
+          if (order.userId && order.userId !== currentUser.uid) {
+            // Skip this order - it belongs to another user
+            continue;
+          }
+          
+          const cs = order.status || "Pending";
+          const st = order.statusTime || {};
+          const flow = [
+            {step: "Pending", icon: "⏰"},
+            {step: "Shipped", icon: "📦"},
+            {step: "Out for Delivery", icon: "🚚"},
+            {step: "Delivered", icon: "✅"}
+          ];
+          
+          // Check for delay in processing
+          const delayInfo = checkDelayInProcess(order, cs);
+          const delayAlertHTML = delayInfo ? generateDelayAlert(delayInfo) : '';
+          
+          // Generate products list
+          const productsListHTML = generateProductsList(order);
+          
+          // Create compact timeline
+          let timelineHTML = flow.map((stepObj, i) => {
+            const step = stepObj.step;
+            const stepClass = (cs.includes(step)) ? "current" : (i < flow.findIndex(s => s.step === cs)) ? "completed" : "";
+            const stepTime = st[step] ? formatOrderTime(st[step]) : '';
+            
+            return `<div class="timeline-step ${stepClass}">
+                      <div class="timeline-icon">${stepObj.icon}</div>
+                      <div class="step-label">${step}</div>
+                      <div class="step-time">${stepTime}</div>
+                    </div>`;
+          }).join('');
+          
+          // Transaction ID display
+          const transactionHTML = showTransactionID(order);
+          
+          // Return/Refund section
+          const returnRefundHTML = showReturnRefundSection(order, id);
+          
+          // Action buttons
+          let actionHTML = "";
+          if(cs === "Pending"){ 
+            actionHTML += `<button class="action-btn cancel-btn" onclick="cancelOrder('${id}')">
+                            <i class="fas fa-times"></i> Cancel
+                          </button>`; 
+          }
+          
+          // Admin comment
+          let adminCommentHTML = order.adminComment ? 
+            `<div class="admin-comment">
+              <i class="fas fa-comment"></i> <strong>Admin:</strong> ${order.adminComment}
+            </div>` : '';
+          
+          singleOrderResult.innerHTML += `<div class="order">
+            <div class="order-header">
+              <div class="order-code">${order.shortCode || 'ORD-' + id.slice(-6)}</div>
+              <div class="order-status ${getStatusClass(cs)}">${cs}</div>
+            </div>
+            
+            <div class="order-id-display">
+              <h4><i class="fas fa-receipt"></i> Your Order ID</h4>
+              <div class="order-id">${order.orderId}</div>
+              <p class="order-id-note">
+                <i class="fas fa-info-circle"></i> 
+                Save this ID for future tracking
+              </p>
+            </div>
+            
+            ${delayAlertHTML}
+            
+            ${productsListHTML}
+            
+            <div class="order-details">
+              <div class="detail-row">
+                <i class="fas fa-user"></i>
+                <span><strong>Name:</strong> ${order.name || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <i class="fas fa-phone"></i>
+                <span><strong>Phone:</strong> ${order.phone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <i class="fas fa-credit-card"></i>
+                <span><strong>Payment Method:</strong> ${order.payment || 'COD'}</span>
+              </div>
+              ${transactionHTML}
+              <div class="detail-row">
+                <i class="fas fa-rupee-sign"></i>
+                <span><strong>Total:</strong> ₹${order.bill || 0}</span>
+              </div>
+              <div class="detail-row">
+                <i class="fas fa-bike"></i>
+                <span><strong>Delivery:</strong> ${order.deliveryBoy || 'Not assigned'}</span>
+              </div>
+            </div>
+            
+            ${adminCommentHTML}
+            
+            <div class="compact-timeline">
+              ${timelineHTML}
+            </div>
+            
+            ${returnRefundHTML}
+            
+            <div class="order-actions">
+              ${actionHTML}
+              <button class="action-btn" onclick="switchTab('allOrders')">
+                <i class="fas fa-arrow-left"></i> Back to All Orders
+              </button>
+            </div>
+          </div>`;
+        }
+      }
+      
+      if(!found) {
+        singleOrderResult.innerHTML = `
+          <div class="no-orders">
+            <i class="fas fa-search"></i>
+            <h3>Order Not Found</h3>
+            <p>No order found with this Order ID. Please check and try again.</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">
+              <i class="fas fa-lightbulb"></i> 
+              Make sure you entered the correct Order ID (case sensitive)
+            </p>
+            <button class="track-btn" onclick="switchTab('allOrders')" style="margin-top: 15px;">
+              <i class="fas fa-list"></i> View All My Orders
+            </button>
+          </div>
+        `;
+      }
+    }, {onlyOnce: true});
+    
+  } catch (error) {
+    console.error("Tracking error:", error);
+    singleOrderResult.innerHTML = `
+      <div class="no-orders">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3>Connection Error</h3>
+        <p>Please check your connection and try again</p>
+        <button class="track-btn" onclick="switchTab('allOrders')" style="margin-top: 15px;">
+          <i class="fas fa-list"></i> View Cached Orders
+        </button>
+      </div>
+    `;
+  }
+};
+
+// Helper functions
+function getStatusClass(status){
+  if(status==="Pending") return "pending";
+  if(status.includes("Rejected")||status==="Cancelled") return "red";
+  if(status==="Shipped"||status==="Out for Delivery"||status==="Delivered"||status.includes("Accepted")) return "green";
+  if(status==="Return Requested"||status==="Return Approved") return "orange";
+  if(status==="Refund Initiated") return "blue";
+  return "";
+}
+
+function formatOrderTime(timestamp) {
+  if (!timestamp) return '';
+  try {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (e) {
+    return '';
+  }
+}
+
+function formatOrderDate(timestamp) {
+  if (!timestamp) return '';
+  try {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return '';
+  }
+}
+
+function showTransactionID(order) {
+  if (order.payment === "UPI Payment" && order.transactionId && order.transactionId !== "N/A") {
+    return `
+      <div class="transaction-id">
+        <i class="fas fa-receipt"></i>
+        <div>
+          <strong>Transaction ID:</strong> 
+          <span style="font-weight: bold; color: var(--accent);">${order.transactionId}</span>
+        </div>
+      </div>
+    `;
+  }
+  else if (order.payment === "UPI Payment") {
+    return `
+      <div class="transaction-id" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); border-left-color: #ffc107;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div>
+          <strong>Transaction ID:</strong> 
+          <span style="color: #856404;">Pending / Not Provided</span>
+        </div>
+      </div>
+    `;
+  }
+  else {
+    return `
+      <div class="transaction-id" style="background: linear-gradient(135deg, #e8f5e8, #d4edda); border-left-color: #28a745;">
+        <i class="fas fa-money-bill-wave"></i>
+        <div>
+          <strong>Payment:</strong> 
+          <span style="color: #155724;">Cash on Delivery</span>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Return/Refund Section
+function showReturnRefundSection(order, orderId) {
+  const cs = order.status || "Pending";
+  
+  // If order is delivered, show return option for 24 hours
+  if (cs === "Delivered") {
+    let deliveryTimestamp = null;
+    
+    if (order.deliveredAtISO) {
+      deliveryTimestamp = new Date(order.deliveredAtISO);
+    } else if (order.statusTime && order.statusTime.Delivered) {
+      deliveryTimestamp = new Date(order.statusTime.Delivered);
+    } else if (order.deliveredAt) {
+      deliveryTimestamp = new Date(order.deliveredAt);
+    }
+    
+    // Calculate time difference
+    if (deliveryTimestamp && !isNaN(deliveryTimestamp.getTime())) {
+      const now = new Date();
+      const diffHours = (now - deliveryTimestamp) / (1000 * 60 * 60);
+      
+      if (diffHours <= 24) {
+        const hoursLeft = Math.floor(24 - diffHours);
+        const minutesLeft = Math.floor((24 - diffHours) * 60) % 60;
+        
+        return `
+          <div class="return-section">
+            <h4><i class="fas fa-undo"></i> Not Satisfied with your order?</h4>
+            <div class="return-info">
+              <i class="fas fa-clock"></i> You have ${hoursLeft} hours ${minutesLeft} minutes left to request return
+            </div>
+            <input type="text" class="return-input" id="returnReason_${orderId}" placeholder="Reason for return (e.g., Wrong size, Damaged product, etc.)">
+            <button class="action-btn return-btn" onclick="requestReturn('${orderId}')">
+              <i class="fas fa-undo"></i> Request Return
+            </button>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="return-section">
+            <h4><i class="fas fa-undo"></i> Return Period Expired</h4>
+            <div class="return-info">
+              <i class="fas fa-clock"></i> 24-hour return period has ended
+            </div>
+          </div>
+        `;
+      }
+    } else {
+      return `
+        <div class="return-section">
+          <h4><i class="fas fa-undo"></i> Return Policy</h4>
+          <div class="return-info">
+            <i class="fas fa-info-circle"></i> Returns accepted within 24 hours of delivery
+          </div>
+        </div>
+      `;
+    }
+  }
+  
+  // If return is requested
+  if (cs === "Return Requested") {
+    let refundHTML = '';
+    if (order.refundStatus) {
+      refundHTML = `
+        <div class="refund-status">
+          <i class="fas fa-check-circle"></i> <strong>Refund Status:</strong> ${order.refundStatus}
+          ${order.refundAmount ? `<br><i class="fas fa-rupee-sign"></i> <strong>Amount:</strong> ₹${order.refundAmount}` : ''}
+          ${order.refundMethod ? `<br><i class="fas fa-wallet"></i> <strong>Method:</strong> ${order.refundMethod}` : ''}
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="return-section">
+        <h4><i class="fas fa-sync"></i> Return Requested</h4>
+        <div class="return-info">
+          <i class="fas fa-comment"></i> <strong>Reason:</strong> ${order.returnReason || 'Not specified'}
+        </div>
+        <div class="return-info">
+          <i class="fas fa-clock"></i> <strong>Requested:</strong> ${formatOrderTime(order.statusTime?.["Return Requested"])}
+        </div>
+        ${refundHTML}
+        <div style="margin-top: 10px; font-size: 0.75rem; color: #856404;">
+          <i class="fas fa-info-circle"></i> Our team will process your return within 2-3 business days
+        </div>
+      </div>
+    `;
+  }
+  
+  // If return is approved and refund initiated
+  if (cs === "Return Approved" || cs === "Refund Initiated") {
+    return `
+      <div class="return-section">
+        <h4><i class="fas fa-check-circle"></i> Return Approved</h4>
+        <div class="refund-status">
+          <i class="fas fa-check-circle"></i> Your return has been approved
+          ${order.refundAmount ? `<br><i class="fas fa-rupee-sign"></i> <strong>Refund Amount:</strong> ₹${order.refundAmount}` : ''}
+          ${order.refundMethod ? `<br><i class="fas fa-wallet"></i> <strong>Refund Method:</strong> ${order.refundMethod}` : ''}
+          ${order.estimatedRefundDate ? `<br><i class="fas fa-calendar"></i> <strong>Estimated Date:</strong> ${order.estimatedRefundDate}` : ''}
+        </div>
+      </div>
+    `;
+  }
+  
+  return '';
+}
+
+window.cancelOrder = async (id) => { 
+  if(confirm("Are you sure you want to cancel this order?")) {
+    try {
+      await update(ref(db,"orders/"+id),{
+        status:"Cancelled", 
+        statusTime: {Cancelled: new Date().toISOString()}
+      });
+      alert("✅ Order cancelled"); 
+      
+      // Refresh orders
+      loadMyOrders();
+      
+      // If viewing single order, refresh that too
+      const orderIdInput = document.getElementById("orderIdInput").value.trim();
+      if (orderIdInput) {
+        trackOrderById(orderIdInput);
+      }
+    } catch (error) {
+      alert("❌ Failed to cancel order. Please try again.");
+    }
+  }
+};
+
+window.requestReturn = async (id) => { 
+  const reason = document.getElementById(`returnReason_${id}`).value.trim(); 
+  if(!reason) {
+    alert("Please enter a reason for return");
+    return;
+  } 
+  try {
+    await update(ref(db,"orders/"+id),{
+      status:"Return Requested", 
+      returnReason: reason, 
+      statusTime: {"Return Requested": new Date().toISOString()}
+    });
+    alert("✅ Return request submitted successfully!"); 
+    
+    // Refresh orders
+    loadMyOrders();
+    
+    // If viewing single order, refresh that too
+    const orderIdInput = document.getElementById("orderIdInput").value.trim();
+    if (orderIdInput) {
+      trackOrderById(orderIdInput);
+    }
+  } catch (error) {
+    alert("❌ Failed to submit return request. Please try again.");
+  }
+};
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Checking authentication status...");
+  
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log('User is already authenticated:', user.uid);
+      currentUser = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || 'Customer',
+        phone: user.phoneNumber || 'Not provided'
+      };
+      
+      // User is authenticated, show main app
+      setTimeout(() => {
+        authCheck.style.display = 'none';
+        mainHeader.style.display = 'block';
+        mainContainer.style.display = 'block';
+        
+        // Update customer info
+        updateCustomerInfo();
+        
+        // Load user's orders
+        loadMyOrders();
+        
+        // Load recent generated IDs
+        loadRecentGeneratedIds();
+      }, 1000);
+      
+    } else {
+      console.log('User is not authenticated');
+      // Show auth check screen
+      authCheck.style.display = 'flex';
+      mainHeader.style.display = 'none';
+      mainContainer.style.display = 'none';
+    }
+  });
+});
+
+// Enter key support for order tracking
+document.getElementById('orderIdInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') trackOrderById();
+});
+</script>
+</body>
+</html>
